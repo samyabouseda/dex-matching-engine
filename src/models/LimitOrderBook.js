@@ -10,12 +10,14 @@ class LimitOrderBook {
 
 	add(order) {
 		if (order.isBid()) {
+			// TODO: Check for a match on the other side.
 			if (this.bids === null) {
 				this.bids = new Limit(order)
 			} else {
 				this.bids.add(order)
 			}
 		} else { // order.side.isAsk
+			// TODO: Check for a match on the other side.
 			if (this.asks === null) {
 				this.asks = new Limit(order)
 			} else {
