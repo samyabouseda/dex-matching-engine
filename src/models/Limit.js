@@ -34,12 +34,6 @@ class Limit {
 	}
 	
 	_setAsTail(order) {
-		// if (this.tailOrder !== null) {
-		// 	this.tailOrder.nextOrder = order
-		// 	order.previousOrder = this.tailOrder
-		// }
-		// this.tailOrder = order
-
 		this.tailOrder = this.headOrder.setNext(order)
 	}
 }
