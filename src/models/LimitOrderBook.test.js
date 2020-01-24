@@ -35,25 +35,25 @@ describe('OrderBook', () => {
 	orderBook.add(order15)
 
 	// BIDS
-	describe('first sell limit order created', () => {
+	describe(`first sell limit order created (${order1.limitPrice})`, () => {
 		it('should be the head order of the root of the sell tree', () => {
-			expect(orderBook.bids.headOrder).toEqual(order1)
+			expect(orderBook.bids.getRoot().headOrder).toEqual(order1)
 		})
 	})
 
-	describe('second sell limit order created', () => {
+	describe(`second sell limit order created (${order2.limitPrice})`, () => {
 		it('should be the head order of the left child of the root', () => {
-			expect(orderBook.bids.leftChild.headOrder).toEqual(order2)
+			expect(orderBook.bids.getRoot().leftChild.headOrder).toEqual(order2)
 		})
 	})
 
-	describe('third sell limit order created', () => {
+	describe(`third sell limit order created (${order3.limitPrice})`, () => {
 		it('should be the head order of the right child of the root', () => {
-			expect(orderBook.bids.rightChild.headOrder).toEqual(order3)
+			expect(orderBook.bids.getRoot().rightChild.headOrder).toEqual(order3)
 		})
 	})
 
-	describe('second sell limit order at the same limit price', () => {
+	describe(`second sell limit order at the same limit price (${order7.limitPrice})`, () => {
 		it('should be added as next order of the head order', () => {
 			expect(order2.nextOrder).toEqual(order7)
 		})
@@ -67,7 +67,7 @@ describe('OrderBook', () => {
 		})
 	})
 
-	describe('third sell limit order at the same limit price', () => {
+	describe(`third sell limit order at the same limit price (${order9.limitPrice})`, () => {
 		it('should be added as next order of the second order at the same limit price', () => {
 			expect(order7.nextOrder).toEqual(order9)
 		})
@@ -82,13 +82,13 @@ describe('OrderBook', () => {
 	})
 
 	// ASKS
-	describe('first buy limit order created', () => {
+	describe(`first buy limit order created (${order9.limitPrice})`, () => {
 		it('should be the head order of the root of the buy tree', () => {
-			expect(orderBook.asks.headOrder).toEqual(order10)
+			expect(orderBook.asks.getRoot().headOrder).toEqual(order10)
 		})
 	})
 
-	describe('third buy limit order at the same limit price', () => {
+	describe(`third buy limit order at the same limit price (${order15.limitPrice})`, () => {
 		it('should be added as next order of the second order at the same limit price', () => {
 			expect(order14.nextOrder).toEqual(order15)
 		})
@@ -101,13 +101,69 @@ describe('OrderBook', () => {
 			expect(order15.nextOrder).toBe(null)
 		})
 	})
-
-	// MATCH
-	describe('new buy order at 13.37', () => {
-		it('should be matched with second sell order', () => {
-			let order100 = new LimitOrder("ask", 13.37, 10)
-			orderBook.add(order100)
-			expect(true).toBe(false)
-		})
-	})
 })
+
+const result = {
+	taker: {
+		// LimitOrder: { size, sizeRemaining should be > 0 if partially filled.
+	},
+	makers: [ { /* LimitOrder */}, { /* LimitOrder */} ],
+	takeSize: 0,
+}
+
+// MATCH
+it('complete fill', () => {
+	let orderBook = new LimitOrderBook()
+	let order1 = new LimitOrder("bid", 13.37, 10)
+	let order2 = new LimitOrder("ask", 13.38, 5)
+	let order3 = new LimitOrder("bid", 13.38, 5)
+	orderBook.add(order1)
+	orderBook.add(order2)
+	const result = orderBook.add(order3)
+	expect(result.taker).toEqual(order3)
+	expect(result.makers.length).toBe(1)
+	expect(result.makers[0]).toEqual(order2)
+	expect(result.takeSize).toBe(5)
+})
+
+// it('partial fill', () => {
+// 	let orderBook = new LimitOrderBook()
+// 	let order1 = new LimitOrder("bid", 13.37, 5)
+// 	let order2 = new LimitOrder("ask", 13.38, 10)
+// 	let order3 = new LimitOrder("bid", 13.38, 5)
+// 	orderBook.add(order1)
+// 	orderBook.add(order2)
+// 	const result = orderBook.add(order3)
+// 	expect(result.taker).toEqual(order3)
+// 	expect(result.makers.length).toBe(1)
+// 	expect(result.makers[0]).toEqual(order2)
+// 	expect(result.takeSize).toBe(5)
+// })
+//
+// it('complete fill left over', () => {
+// 	let orderBook = new LimitOrderBook()
+// 	let order1 = new LimitOrder("bid", 13.37, 10)
+// 	let order2 = new LimitOrder("ask", 13.38, 5)
+// 	let order3 = new LimitOrder("bid", 13.38, 5)
+// 	orderBook.add(order1)
+// 	orderBook.add(order2)
+// 	const result = orderBook.add(order3)
+// 	expect(result.taker).toEqual(order3)
+// 	expect(result.makers.length).toBe(1)
+// 	expect(result.makers[0]).toEqual(order2)
+// 	expect(result.takeSize).toBe(5)
+// })
+//
+// it('complete fill multi makers', () => {
+// 	let orderBook = new LimitOrderBook()
+// 	let order1 = new LimitOrder("bid", 13.37, 10)
+// 	let order2 = new LimitOrder("ask", 13.38, 5)
+// 	let order3 = new LimitOrder("bid", 13.38, 5)
+// 	orderBook.add(order1)
+// 	orderBook.add(order2)
+// 	const result = orderBook.add(order3)
+// 	expect(result.taker).toEqual(order3)
+// 	expect(result.makers.length).toBe(1)
+// 	expect(result.makers[0]).toEqual(order2)
+// 	expect(result.takeSize).toBe(5)
+// })

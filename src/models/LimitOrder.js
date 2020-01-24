@@ -1,11 +1,12 @@
 import mongoose from 'mongoose'
 
 class LimitOrder {
-	constructor(side, limitPrice, nbOfShares) {
+	constructor(side, limitPrice, size) {
 		this.id = this._generateObjectId()
 		this.side = side
 		this.limitPrice = limitPrice
-		this.nbOfShares = nbOfShares
+		this.size = size
+		this.sizeRemaining = size
 		this.entryTime = Date.now()
 		this.previousOrder = null
 		this.nextOrder = null
@@ -17,6 +18,10 @@ class LimitOrder {
 
 	isBid() {
 		return this.side === "bid"
+	}
+
+	isFilled() {
+		return this.sizeRemaining === 0
 	}
 
 	setNext(order) {
@@ -35,7 +40,7 @@ class LimitOrder {
 				&& this.entryTime === obj.entryTime
 				&& this.side === obj.side
 				&& this.limitPrice === obj.limitPrice
-				&& this.nbOfShares === obj.nbOfShares
+				&& this.size === obj.size
 		}
 	}
 
