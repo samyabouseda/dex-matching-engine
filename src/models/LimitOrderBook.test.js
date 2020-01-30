@@ -120,10 +120,12 @@ it('complete fill', () => {
 	orderBook.add(order1)
 	orderBook.add(order2)
 	const result = orderBook.add(order3)
-	expect(result.taker).toEqual(order3)
-	expect(result.makers.length).toBe(1)
-	expect(result.makers[0]).toEqual(order2)
-	expect(result.takeSize).toBe(5)
+	console.log('RESULT')
+	console.log(result)
+	expect(result.result.taker).toEqual(order3)
+	expect(result.result.makers.length).toBe(1)
+	expect(result.result.makers[0]).toEqual(order2)
+	expect(result.result.takeSize).toBe(5)
 })
 
 // it('partial fill', () => {

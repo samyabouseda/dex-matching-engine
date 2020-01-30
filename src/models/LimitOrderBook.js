@@ -1,4 +1,4 @@
-import LimitNode from './LimitNode'
+import LimitPrice from './LimitPrice'
 
 class BinarySearchTree {
 	constructor(root = null) {
@@ -11,7 +11,7 @@ class BinarySearchTree {
 
 	add(order) {
 		if (this.isEmpty()) {
-			this.root = new LimitNode(order)
+			this.root = new LimitPrice(order)
 			return true
 		} else {
 			return this.root.add(order)
@@ -28,31 +28,36 @@ class BinarySearchTree {
 
 	findMakersFor(order) {
 		if (this.isEmpty()) {
-			return false
+			return []
 		} else {
-			if (order.limitPrice === this.root.limitPrice) {
+
+			if (order.limitPrice === this.root.limitPrice) { // limitPriceMatch
 				if (this.root.headOrder.size === order.size) {
 					return [this.root.headOrder]
-				} else if (this.root.headOrder.size < order.size) {
-					return [this.root.headOrder,] // TODO: partial fill return
-				} else {
-					return [this.root.headOrder, ] // TODO: complete fill left over
 				}
+				// else if (this.root.headOrder.size < order.size) {
+				// 	return [this.root.headOrder,] // TODO: partial fill return
+				// } else {
+				// 	return [this.root.headOrder, ] // TODO: complete fill left over
+				// }
+				return []
+
+
+
 			} else if (order.limitPrice < this.root.limitPrice) {
-				if (this.root.leftChild === null) {
-					return false
+				if (this.root.leftChild === null) { // hasLeftChild
+					return []
 				} else {
-					return this.root.leftChild.findMakerFor(order)
+					return this.root.leftChild.findMakersFor(order)
 				}
 			} else if (order.limitPrice > this.root.limitPrice) {
-				if (this.root.rightChild === null) {
-					return false
+				if (this.root.rightChild === null) { // hasRightChild
+					return []
 				} else {
-					return this.root.rightChild.findMakerFor(order)
+					return this.root.rightChild.findMakersFor(order)
 				}
-			} else {
-				return false
 			}
+			return []
 		}
 	}
 }
@@ -68,14 +73,14 @@ class LimitOrderBook {
 
 	add(order) {
 		if (order.isBid()) {
-			let { result, order: _order } = this.execute(order)
-			if (_order.isFilled()) {
+			const result = this.execute(order)
+			if (result.taker.isFilled()) {
 				return {
 					status: "filled",
 					result: result
 				}
 			} else {
-				this.bids.add(_order)
+				this.bids.add(result.taker)
 				return {
 					status: "queued",
 					result: result,
@@ -92,16 +97,11 @@ class LimitOrderBook {
 		// if order is executed fully return value is order with size zero
 		// if order is executed partially return value is the order object with updated sizeRemaining
 		// if order is not executed return value is the order
-		// console.log(order)
 		const makers = this.asks.findMakersFor(order)
-		const result = {
+		return { // result
 			taker: order,
 			makers: makers,
-		}
-		console.log(result)
-		return {
-			result,
-			order: order, // should return updated order
+			// sizeRemaining
 		}
 	}
 }

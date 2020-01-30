@@ -1,4 +1,4 @@
-import LimitNode from './LimitNode'
+import LimitPrice from './LimitPrice'
 
 // class BinarySearchTree {
 // 	constructor(root = null) {
