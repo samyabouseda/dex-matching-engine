@@ -32,13 +32,13 @@ class BinarySearchTree {
 		} else {
 			if (order.limitPrice === this.root.limitPrice) { // limitPriceMatch
 
-				let makers = []
-				let sizeCount = 0
+				let makers = [this.root.headOrder]
+				let sizeCount = this.root.headOrder.size
 				let currentOrder = this.root.headOrder
-				while (sizeCount < order.size) {
-					makers.push(currentOrder)
-					sizeCount += currentOrder.size
+				while (sizeCount < order.size && currentOrder.hasNext()) {
 					currentOrder = currentOrder.getNext()
+					sizeCount += currentOrder.size
+					makers.push(currentOrder)
 				}
 				return makers
 

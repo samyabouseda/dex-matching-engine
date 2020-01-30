@@ -103,14 +103,6 @@ describe('OrderBook', () => {
 	})
 })
 
-const result = {
-	taker: {
-		// LimitOrder: { size, sizeRemaining should be > 0 if partially filled.
-	},
-	makers: [ { /* LimitOrder */}, { /* LimitOrder */} ],
-	takeSize: 0,
-}
-
 describe('Matching', () => {
 	it('one-to-one complete fill', () => {
 		let orderBook = new LimitOrderBook()
@@ -187,48 +179,38 @@ describe('Matching', () => {
 		expect(result.makers[2].sizeRemaining).toBe(0)
 		expect(result.makers[3].sizeRemaining).toBe(5)
 	})
+
+	it('one-to-one partial fill', () => {
+		let orderBook = new LimitOrderBook()
+		let order1 = new LimitOrder("ask", 13.38, 100)
+		let order2 = new LimitOrder("bid", 13.38, 250)
+		orderBook.add(order1)
+		const { result } = orderBook.add(order2)
+		expect(result.taker).toEqual(order2)
+		expect(result.taker.sizeRemaining).toBe(150)
+		expect(result.makers.length).toBe(1)
+		expect(result.makers[0]).toEqual(order1)
+		expect(result.makers[0].sizeRemaining).toBe(0)
+	})
+
+	it('one-to-many partial fill', () => {
+		let orderBook = new LimitOrderBook()
+		let order1 = new LimitOrder("ask", 13.38, 100)
+		let order2 = new LimitOrder("ask", 13.38, 200)
+		let order3 = new LimitOrder("ask", 13.38, 400)
+		let order4 = new LimitOrder("bid", 13.38, 1200)
+		orderBook.add(order1)
+		orderBook.add(order2)
+		orderBook.add(order3)
+		const { result } = orderBook.add(order4)
+		expect(result.taker).toEqual(order4)
+		expect(result.taker.sizeRemaining).toBe(500)
+		expect(result.makers.length).toBe(3)
+		expect(result.makers[0]).toEqual(order1)
+		expect(result.makers[1]).toEqual(order2)
+		expect(result.makers[2]).toEqual(order3)
+		expect(result.makers[0].sizeRemaining).toBe(0)
+		expect(result.makers[1].sizeRemaining).toBe(0)
+		expect(result.makers[2].sizeRemaining).toBe(0)
+	})
 })
-
-
-
-// it('partial fill', () => {
-// 	let orderBook = new LimitOrderBook()
-// 	let order1 = new LimitOrder("bid", 13.37, 5)
-// 	let order2 = new LimitOrder("ask", 13.38, 10)
-// 	let order3 = new LimitOrder("bid", 13.38, 5)
-// 	orderBook.add(order1)
-// 	orderBook.add(order2)
-// 	const result = orderBook.add(order3)
-// 	expect(result.taker).toEqual(order3)
-// 	expect(result.makers.length).toBe(1)
-// 	expect(result.makers[0]).toEqual(order2)
-// 	expect(result.takeSize).toBe(5)
-// })
-//
-// it('complete fill left over', () => {
-// 	let orderBook = new LimitOrderBook()
-// 	let order1 = new LimitOrder("bid", 13.37, 10)
-// 	let order2 = new LimitOrder("ask", 13.38, 5)
-// 	let order3 = new LimitOrder("bid", 13.38, 5)
-// 	orderBook.add(order1)
-// 	orderBook.add(order2)
-// 	const result = orderBook.add(order3)
-// 	expect(result.taker).toEqual(order3)
-// 	expect(result.makers.length).toBe(1)
-// 	expect(result.makers[0]).toEqual(order2)
-// 	expect(result.takeSize).toBe(5)
-// })
-//
-// it('complete fill multi makers', () => {
-// 	let orderBook = new LimitOrderBook()
-// 	let order1 = new LimitOrder("bid", 13.37, 10)
-// 	let order2 = new LimitOrder("ask", 13.38, 5)
-// 	let order3 = new LimitOrder("bid", 13.38, 5)
-// 	orderBook.add(order1)
-// 	orderBook.add(order2)
-// 	const result = orderBook.add(order3)
-// 	expect(result.taker).toEqual(order3)
-// 	expect(result.makers.length).toBe(1)
-// 	expect(result.makers[0]).toEqual(order2)
-// 	expect(result.takeSize).toBe(5)
-// })
