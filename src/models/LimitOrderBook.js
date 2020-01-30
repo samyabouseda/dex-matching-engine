@@ -10,12 +10,9 @@ class BinarySearchTree {
 	}
 
 	add(order) {
-		if (this.isEmpty()) {
-			this.root = new LimitPrice(order)
-			return true
-		} else {
-			return this.root.add(order)
-		}
+		this.isEmpty()
+			? (this.root = new LimitPrice(order))
+			: this.root.add(order)
 	}
 
 	isEmpty() {
@@ -27,29 +24,35 @@ class BinarySearchTree {
 	}
 
 	findMakersFor(order) {
+		// TODO: Refactor
 		if (this.isEmpty()) {
 			return []
 		} else {
-			if (order.limitPrice === this.root.limitPrice) { // limitPriceMatch
+			if (order.limitPrice === this.root.limitPrice) {
+				// limitPriceMatch
 
 				let makers = [this.root.headOrder]
 				let sizeCount = this.root.headOrder.size
 				let currentOrder = this.root.headOrder
-				while (sizeCount < order.size && currentOrder.hasNext()) {
+				while (
+					sizeCount < order.size &&
+					currentOrder.hasNext()
+				) {
 					currentOrder = currentOrder.getNext()
 					sizeCount += currentOrder.size
 					makers.push(currentOrder)
 				}
 				return makers
-
 			} else if (order.limitPrice < this.root.limitPrice) {
-				if (this.root.leftChild === null) { // hasLeftChild
+				if (this.root.leftChild === null) {
+					// hasLeftChild
 					return []
 				} else {
 					return this.root.leftChild.findMakersFor(order)
 				}
 			} else if (order.limitPrice > this.root.limitPrice) {
-				if (this.root.rightChild === null) { // hasRightChild
+				if (this.root.rightChild === null) {
+					// hasRightChild
 					return []
 				} else {
 					return this.root.rightChild.findMakersFor(order)
@@ -60,82 +63,67 @@ class BinarySearchTree {
 	}
 }
 
-
 class LimitOrderBook {
 	constructor() {
 		this.bids = new BinarySearchTree()
 		this.asks = new BinarySearchTree()
 
 		this.add = this.add.bind(this)
+		this.executeBid = this.executeBid.bind(this)
+		this.executeAsk = this.executeAsk.bind(this)
 	}
 
 	add(order) {
-		if (order.isBid()) {
-			const result = this.executeBid(order)
-			if (result.taker.isFilled()) {
-				return {
-					status: "filled", // should be set in execute()
-					result: result
-				}
-			} else {
-				this.bids.add(result.taker)
-				return {
-					status: "queued",
-					result: result,
-				}
-			}
-		} else { // order.side.isAsk
-			// TODO: Check for a match on the other side.
-			return this.asks.add(order)
-		}
+		return order.isBid()
+			? this.executeBid(order)
+			: this.executeAsk(order)
 	}
 
 	executeBid(order) {
-		// try to execute order
-		// if order is executed fully return value is order with size zero
-		// if order is executed partially return value is the order object with updated sizeRemaining
-		// if order is not executed return value is the order
-		// TODO: do the same for the bids
-		const makers = this.asks.findMakersFor(order)
+		const { makers, taker } = this.execute(order)
+		if (!order.isFilled()) {
+			this.bids.add(order)
+		}
+		return {
+			taker: taker,
+			makers: makers,
+		}
+	}
 
-		if (makers.length === 0) {
-			return {
-				status: "queued",
-				taker: order,
-				makers: makers,
-			}
-		} else {
-			let _makers = [...makers]
-			while(order.sizeRemaining > 0 && _makers.length > 0) {
+	executeAsk(order) {
+		// TODO
+		return this.asks.add(order)
+	}
+
+	execute(order) {
+		const makers = this.asks.findMakersFor(order)
+		let _makers = [...makers]
+		if (makers.length > 0) {
+			while (order.sizeRemaining > 0 && _makers.length > 0) {
 				const maker = _makers.shift()
 				const taker = order
 				if (taker.sizeRemaining > maker.sizeRemaining) {
 					let takeSize = maker.sizeRemaining
-					maker.sizeRemaining = 0
-					taker.sizeRemaining -= takeSize
-				} else if (taker.sizeRemaining < maker.sizeRemaining) {
+					maker.setSizeRemaining(0)
+					taker.setSizeRemaining(
+						taker.sizeRemaining - takeSize,
+					)
+				} else if (
+					taker.sizeRemaining < maker.sizeRemaining
+				) {
 					let takeSize = taker.sizeRemaining
-					maker.sizeRemaining -= takeSize
-					taker.sizeRemaining = 0
-				} else { // taker.sizeRemaining === maker.sizeRemaining
-					maker.sizeRemaining = 0
-					taker.sizeRemaining = 0
-				}
-			}
-			if (order.sizeRemaining > 0) {
-				return {
-					status: "partially-filled",
-					taker: order,
-					makers: makers,
-				}
-			} else {
-				return {
-					status: "filled",
-					taker: order,
-					makers: makers,
+					maker.setSizeRemaining(
+						maker.sizeRemaining - takeSize,
+					)
+					taker.setSizeRemaining(0)
+				} else {
+					// taker.sizeRemaining === maker.sizeRemaining
+					maker.setSizeRemaining(0)
+					taker.setSizeRemaining(0)
 				}
 			}
 		}
+		return { makers, taker: order }
 	}
 }
 
