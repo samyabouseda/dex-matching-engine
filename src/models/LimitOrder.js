@@ -34,6 +34,14 @@ class LimitOrder {
 		}
 	}
 
+	getNext() {
+		return this.nextOrder
+	}
+
+	hasNext() {
+		return this.nextOrder !== null
+	}
+
 	equals(obj) {
 		if (obj instanceof LimitOrder) {
 			return this.id === obj.id

@@ -1,4 +1,3 @@
-
 class LimitPrice {
 	constructor(order) {
 		this.limitPrice = order.limitPrice

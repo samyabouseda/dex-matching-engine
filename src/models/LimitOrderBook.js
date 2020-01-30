@@ -30,19 +30,17 @@ class BinarySearchTree {
 		if (this.isEmpty()) {
 			return []
 		} else {
-
 			if (order.limitPrice === this.root.limitPrice) { // limitPriceMatch
-				if (this.root.headOrder.size === order.size) {
-					return [this.root.headOrder]
+
+				let makers = []
+				let sizeCount = 0
+				let currentOrder = this.root.headOrder
+				while (sizeCount < order.size) {
+					makers.push(currentOrder)
+					sizeCount += currentOrder.size
+					currentOrder = currentOrder.getNext()
 				}
-				// else if (this.root.headOrder.size < order.size) {
-				// 	return [this.root.headOrder,] // TODO: partial fill return
-				// } else {
-				// 	return [this.root.headOrder, ] // TODO: complete fill left over
-				// }
-				return []
-
-
+				return makers
 
 			} else if (order.limitPrice < this.root.limitPrice) {
 				if (this.root.leftChild === null) { // hasLeftChild
@@ -73,10 +71,10 @@ class LimitOrderBook {
 
 	add(order) {
 		if (order.isBid()) {
-			const result = this.execute(order)
+			const result = this.executeBid(order)
 			if (result.taker.isFilled()) {
 				return {
-					status: "filled",
+					status: "filled", // should be set in execute()
 					result: result
 				}
 			} else {
@@ -92,16 +90,51 @@ class LimitOrderBook {
 		}
 	}
 
-	execute(order) {
+	executeBid(order) {
 		// try to execute order
 		// if order is executed fully return value is order with size zero
 		// if order is executed partially return value is the order object with updated sizeRemaining
 		// if order is not executed return value is the order
+		// TODO: do the same for the bids
 		const makers = this.asks.findMakersFor(order)
-		return { // result
-			taker: order,
-			makers: makers,
-			// sizeRemaining
+
+		if (makers.length === 0) {
+			return {
+				status: "queued",
+				taker: order,
+				makers: makers,
+			}
+		} else {
+			let _makers = [...makers]
+			while(order.sizeRemaining > 0 && _makers.length > 0) {
+				const maker = _makers.shift()
+				const taker = order
+				if (taker.sizeRemaining > maker.sizeRemaining) {
+					let takeSize = maker.sizeRemaining
+					maker.sizeRemaining = 0
+					taker.sizeRemaining -= takeSize
+				} else if (taker.sizeRemaining < maker.sizeRemaining) {
+					let takeSize = taker.sizeRemaining
+					maker.sizeRemaining -= takeSize
+					taker.sizeRemaining = 0
+				} else { // taker.sizeRemaining === maker.sizeRemaining
+					maker.sizeRemaining = 0
+					taker.sizeRemaining = 0
+				}
+			}
+			if (order.sizeRemaining > 0) {
+				return {
+					status: "partially-filled",
+					taker: order,
+					makers: makers,
+				}
+			} else {
+				return {
+					status: "filled",
+					taker: order,
+					makers: makers,
+				}
+			}
 		}
 	}
 }
