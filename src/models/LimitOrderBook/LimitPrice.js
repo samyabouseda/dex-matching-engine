@@ -11,7 +11,7 @@ class LimitPrice {
 	}
 
 	remove(order) {
-		if (this.headOrder === order) {
+		if (this.headOrder === order && !this.headOrder.hasNext()) {
 			if (this.hasChildren()) {
 				let lowestLimit = this.rightChild.getLowest()
 				this.replaceBy(lowestLimit)
@@ -26,7 +26,7 @@ class LimitPrice {
 			}
 			return false
 		} else {
-			this.headOrder.remove()
+			this.headOrder = this.headOrder.remove(order)
 		}
 	}
 

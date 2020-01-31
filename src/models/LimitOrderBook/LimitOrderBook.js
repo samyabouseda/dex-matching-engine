@@ -23,6 +23,8 @@ class LimitOrderBook {
 		const makers = this.asks.findMakersFor(order)
 		if (!order.isFilled()) {
 			this.bids.add(order)
+		} else {
+			// this.bids.remove(order) // TODO: verify that this works.
 		}
 		return { taker: order, makers }
 	}
