@@ -11,7 +11,7 @@ class LimitPrice {
 	add(order) {
 		if (order.limitPrice === this.limitPrice) {
 			this.volume += order.size
-			this._setAsTail(order)
+			this.setAsTail(order)
 		} else {
 			if (order.limitPrice > this.limitPrice) {
 				if (this.hasRightChild()) {
@@ -19,7 +19,8 @@ class LimitPrice {
 				} else {
 					this.rightChild = new LimitPrice(order)
 				}
-			} else { // order.limitPrice < this.limitPrice
+			} else {
+				// order.limitPrice < this.limitPrice
 				if (this.hasLeftChild()) {
 					this.leftChild.add(order)
 				} else {
@@ -29,8 +30,24 @@ class LimitPrice {
 		}
 	}
 
-	_setAsTail(order) {
+	setAsTail(order) {
 		this.tailOrder = this.headOrder.setNext(order)
+	}
+
+	search(limitPrice) {
+		if (limitPrice === this.limitPrice) {
+			return this
+		} else if (limitPrice < this.limitPrice) {
+			if (this.hasLeftChild()) {
+				return this.leftChild.search(limitPrice)
+			}
+		} else if (limitPrice > this.limitPrice) {
+			if (this.hasRightChild()) {
+				return this.rightChild.search(limitPrice)
+			}
+		} else {
+			return null
+		}
 	}
 
 	hasRightChild() {

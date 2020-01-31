@@ -55,19 +55,19 @@ class BSTNode {
 			// insert in doubly linked list
 			return true
 		} else if (value < this.value) {
-				if (this.leftChild === null) {
-					this.leftChild = new BSTNode(value)
-					return true
-				} else {
-					return this.leftChild.add(value)
-				}
+			if (this.leftChild === null) {
+				this.leftChild = new BSTNode(value)
+				return true
+			} else {
+				return this.leftChild.add(value)
+			}
 		} else if (value > this.value) {
-				if (this.rightChild === null) {
-					this.rightChild = new BSTNode(value)
-					return true
-				} else {
-					return this.rightChild.add(value)
-				}
+			if (this.rightChild === null) {
+				this.rightChild = new BSTNode(value)
+				return true
+			} else {
+				return this.rightChild.add(value)
+			}
 		} else {
 			return false
 		}
@@ -92,9 +92,6 @@ class BSTNode {
 			return false
 		}
 	}
-
 }
 
-it('should remove', () => {
-
-})
+it('should remove', () => {})

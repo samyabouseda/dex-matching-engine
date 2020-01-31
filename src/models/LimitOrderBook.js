@@ -24,16 +24,12 @@ class BinarySearchTree {
 	}
 
 	findMakersFor(order) {
-		// TODO: Refactor
-		if (this.isEmpty()) {
-			return []
-		} else {
-			if (order.limitPrice === this.root.limitPrice) {
-				// limitPriceMatch
-
-				let makers = [this.root.headOrder]
-				let sizeCount = this.root.headOrder.size
-				let currentOrder = this.root.headOrder
+		if (!this.isEmpty()) {
+			const limit = this.root.search(order.limitPrice)
+			if (limit !== undefined) {
+				let makers = [limit.headOrder]
+				let sizeCount = limit.headOrder.size
+				let currentOrder = limit.headOrder
 				while (
 					sizeCount < order.size &&
 					currentOrder.hasNext()
@@ -43,23 +39,9 @@ class BinarySearchTree {
 					makers.push(currentOrder)
 				}
 				return makers
-			} else if (order.limitPrice < this.root.limitPrice) {
-				if (this.root.leftChild === null) {
-					// hasLeftChild
-					return []
-				} else {
-					return this.root.leftChild.findMakersFor(order)
-				}
-			} else if (order.limitPrice > this.root.limitPrice) {
-				if (this.root.rightChild === null) {
-					// hasRightChild
-					return []
-				} else {
-					return this.root.rightChild.findMakersFor(order)
-				}
 			}
-			return []
 		}
+		return []
 	}
 }
 
@@ -80,23 +62,24 @@ class LimitOrderBook {
 	}
 
 	executeBid(order) {
-		const { makers, taker } = this.execute(order)
+		const makers = this.asks.findMakersFor(order)
+		const result = this.execute(order, makers)
 		if (!order.isFilled()) {
 			this.bids.add(order)
 		}
-		return {
-			taker: taker,
-			makers: makers,
-		}
+		return result
 	}
 
 	executeAsk(order) {
-		// TODO
-		return this.asks.add(order)
+		const makers = this.bids.findMakersFor(order)
+		const result = this.execute(order, makers)
+		if (!order.isFilled()) {
+			this.asks.add(order)
+		}
+		return result
 	}
 
-	execute(order) {
-		const makers = this.asks.findMakersFor(order)
+	execute(order, makers) {
 		let _makers = [...makers]
 		if (makers.length > 0) {
 			while (order.sizeRemaining > 0 && _makers.length > 0) {
@@ -123,7 +106,7 @@ class LimitOrderBook {
 				}
 			}
 		}
-		return { makers, taker: order }
+		return { taker: order, makers }
 	}
 }
 
