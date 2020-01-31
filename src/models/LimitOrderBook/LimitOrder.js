@@ -37,21 +37,21 @@ class LimitOrder {
 	}
 
 	setNext(order) {
-		if (this.nextOrder === null) {
+		if (this.hasNext()) {
+			return this.nextOrder.setNext(order)
+		} else {
 			this.nextOrder = order
 			order.previousOrder = this
 			return order
-		} else {
-			return this.nextOrder.setNext(order)
 		}
-	}
-
-	getNext() {
-		return this.nextOrder
 	}
 
 	hasNext() {
 		return this.nextOrder !== null
+	}
+
+	getNext() {
+		return this.nextOrder
 	}
 
 	equals(obj) {
