@@ -11,6 +11,15 @@ class BinarySearchTree {
 			: this.root.add(order)
 	}
 
+	remove(order) {
+		if (this.hasLimitOrders()) {
+			const limit = this.root.search(order.limitPrice)
+			if (limit !== null) {
+				limit.remove(order)
+			}
+		}
+	}
+
 	hasLimitOrders() {
 		return !this.isEmpty()
 	}
@@ -42,6 +51,7 @@ class BinarySearchTree {
 	}
 
 	execute(taker, maker) {
+		// TODO: Execution should update the order AND remove them when sizeRemaining is 0
 		if (taker.sizeRemaining > maker.sizeRemaining) {
 			let takeSize = maker.sizeRemaining
 			maker.setSizeRemaining(0)
@@ -55,6 +65,20 @@ class BinarySearchTree {
 			maker.setSizeRemaining(0)
 			taker.setSizeRemaining(0)
 		}
+	}
+
+	getLowestPrice() {
+		if (this.hasLimitOrders()) {
+			return this.root.getLowest()
+		}
+		return null
+	}
+
+	getHighestPrice() {
+		if (this.hasLimitOrders()) {
+			return this.root.getHighest()
+		}
+		return null
 	}
 }
 

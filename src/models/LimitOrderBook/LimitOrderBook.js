@@ -12,6 +12,13 @@ class LimitOrderBook {
 			: this.executeAsk(order)
 	}
 
+	remove(order) {
+		order.isBid()
+			? this.bids.remove(order)
+			: this.asks.remove(order)
+		return this
+	}
+
 	executeBid(order) {
 		const makers = this.asks.findMakersFor(order)
 		if (!order.isFilled()) {

@@ -36,6 +36,19 @@ class LimitOrder {
 		}
 	}
 
+	remove(order) {
+		if (this === order) {
+			order.previousOrder.nextOrder = order.nextOrder
+			order.nextOrder.previousOrder = order.previousOrder
+			return true
+		} else {
+			if (this.hasNext()) {
+				return this.nextOrder.remove(order)
+			}
+		}
+		return false
+	}
+
 	setNext(order) {
 		if (this.hasNext()) {
 			return this.nextOrder.setNext(order)
