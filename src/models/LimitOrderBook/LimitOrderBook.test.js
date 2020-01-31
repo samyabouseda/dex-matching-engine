@@ -1,5 +1,4 @@
-import LimitOrderBook from './LimitOrderBook'
-import LimitOrder from './LimitOrder'
+import { LimitOrderBook, LimitOrder } from './index'
 
 describe('OrderBook', () => {
 	let orderBook = new LimitOrderBook()
