@@ -23,6 +23,10 @@ class LimitOrder {
 		return this.side === 'bid'
 	}
 
+	cancel() {
+		this.status = 'canceled'
+	}
+
 	isFilled() {
 		return this.sizeRemaining === 0
 	}

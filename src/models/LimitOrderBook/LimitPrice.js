@@ -10,59 +10,89 @@ class LimitPrice {
 		this.equals = this.equals.bind(this)
 	}
 
-	isRoot() {
-		return this.parent === null
+	add(order) {
+		if (order.limitPrice === this.limitPrice) {
+			this.volume += order.size
+			this.headOrder.setNext(order)
+		} else if (order.limitPrice > this.limitPrice) {
+			if (this.hasRightChild()) {
+				this.rightChild.add(order)
+			} else {
+				this.rightChild = new LimitPrice(order, this)
+			}
+		} else {
+			// order.limitPrice < this.limitPrice
+			if (this.hasLeftChild()) {
+				this.leftChild.add(order)
+			} else {
+				this.leftChild = new LimitPrice(order, this)
+			}
+		}
 	}
 
 	remove(order) {
-		if (this.headOrder === order && !this.headOrder.hasNext()) {
-			if (this.isRoot()) {
-				if (this.hasChildren()) {
-					let lowestLimit = this.rightChild.getLowest()
-					this.replaceBy(lowestLimit)
-					return true
-				} else if (this.hasRightChild()) {
-					let lowestLimit = this.rightChild.getLowest()
-					this.replaceBy(lowestLimit)
-					return true
-				} else if (this.hasLeftChild()) {
-					// this.replaceBy(this.leftChild)
-					this.limitPrice = this.leftChild.limitPrice
-					this.volume = this.leftChild.volume
-					this.headOrder = this.leftChild.headOrder
-					this.leftChild =
-						this.leftChild !== null
-							? this.leftChild.leftChild
-							: null
-					this.rightChild =
-						this.rightChild !== null
-							? this.rightChild.rightChild
-							: null
-					return true
-				}
-				return false
-			} else {
-				if (this.hasChildren()) {
-					let lowestLimit = this.rightChild.getLowest()
-					this.replaceBy(lowestLimit)
-					return true
-				} else if (this.parent.leftChild === this) {
-					this.parent.leftChild = this.hasLeftChild()
-						? this.leftChild
-						: this.rightChild
-					return true
-				} else if (this.parent.rightChild === this) {
-					this.parent.rightChild = this.hasRightChild()
-						? this.leftChild
-						: this.rightChild
-					return true
-				}
-				return true // this is set to null because we remove it and doesn't have children
-			}
+		if (this.isTheOnlyOrderAtThisLimitPrice(order)) {
+			return this.removeOnlyOrderAtThisLimitPrice()
 		} else {
-			this.headOrder = this.headOrder.remove(order)
+			return this.removeAnOrderAtThisLimitPrice(order)
+		}
+	}
+
+	isTheOnlyOrderAtThisLimitPrice(order) {
+		return this.headOrder === order && !this.headOrder.hasNext()
+	}
+
+	removeOnlyOrderAtThisLimitPrice() {
+		if (this.isRoot()) {
+			if (this.hasChildren()) {
+				return this.removeLimitWithChildren()
+			} else if (this.hasRightChild()) {
+				let lowestLimit = this.rightChild.getLowest()
+				this.replaceBy(lowestLimit)
+				return true
+			} else if (this.hasLeftChild()) {
+				this.limitPrice = this.leftChild.limitPrice
+				this.volume = this.leftChild.volume
+				this.headOrder = this.leftChild.headOrder
+				this.leftChild = this.leftChild.leftChild
+				this.rightChild =
+					this.rightChild !== null
+						? this.rightChild.rightChild
+						: null
+				return true
+			}
+			return false
+		} else {
+			if (this.hasChildren()) {
+				return this.removeLimitWithChildren()
+			} else if (this.isTheLeftChild()) {
+				this.parent.leftChild = this.hasLeftChild()
+					? this.leftChild
+					: this.rightChild
+				return true
+			} else if (this.isTheRightChild()) {
+				this.parent.rightChild = this.hasRightChild()
+					? this.leftChild
+					: this.rightChild
+				return true
+			}
 			return true
 		}
+	}
+
+	removeLimitWithChildren() {
+		let lowestLimit = this.rightChild.getLowest()
+		this.replaceBy(lowestLimit)
+		return true
+	}
+
+	removeAnOrderAtThisLimitPrice(order) {
+		this.headOrder = this.headOrder.remove(order)
+		return true
+	}
+
+	isRoot() {
+		return this.parent === null
 	}
 
 	replaceBy(thatLimit) {
@@ -85,26 +115,6 @@ class LimitPrice {
 			: this
 	}
 
-	add(order) {
-		if (order.limitPrice === this.limitPrice) {
-			this.volume += order.size
-			this.headOrder.setNext(order)
-		} else if (order.limitPrice > this.limitPrice) {
-			if (this.hasRightChild()) {
-				this.rightChild.add(order)
-			} else {
-				this.rightChild = new LimitPrice(order, this)
-			}
-		} else {
-			// order.limitPrice < this.limitPrice
-			if (this.hasLeftChild()) {
-				this.leftChild.add(order)
-			} else {
-				this.leftChild = new LimitPrice(order, this)
-			}
-		}
-	}
-
 	search(limitPrice) {
 		if (limitPrice === this.limitPrice) {
 			return this
@@ -119,6 +129,14 @@ class LimitPrice {
 		} else {
 			return null
 		}
+	}
+
+	isTheLeftChild() {
+		return this.parent.leftChild === this
+	}
+
+	isTheRightChild() {
+		return this.parent.rightChild === this
 	}
 
 	hasChildren() {

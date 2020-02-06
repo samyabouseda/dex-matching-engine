@@ -20,7 +20,9 @@ class BinarySearchTree {
 					this.root = null
 				}
 			}
+			return true
 		}
+		return false
 	}
 
 	hasLimitOrders() {

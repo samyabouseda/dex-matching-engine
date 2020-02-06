@@ -16,7 +16,8 @@ class LimitOrderBook {
 		order.isBid()
 			? this.bids.remove(order)
 			: this.asks.remove(order)
-		return this
+		order.cancel()
+		return order
 	}
 
 	executeBid(order) {
