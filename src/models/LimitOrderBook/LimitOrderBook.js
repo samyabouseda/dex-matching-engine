@@ -35,6 +35,24 @@ class LimitOrderBook {
 		}
 		return { taker: order, makers }
 	}
+
+	getLowestBidPrice() {
+		const lowestBid = this.bids.getLowestPrice()
+		return lowestBid === null ? 0 : lowestBid.limitPrice
+	}
+
+	getHighestAskPrice() {
+		const highestAsk = this.asks.getHighestPrice()
+		return highestAsk === null ? 0 : highestAsk.limitPrice
+	}
+
+	getBidsAsArray() {
+		return this.bids.toArray()
+	}
+
+	getAsksAsArray() {
+		return this.asks.toArray()
+	}
 }
 
 export default LimitOrderBook

@@ -87,6 +87,24 @@ class BinarySearchTree {
 		}
 		return null
 	}
+
+	toArray() {
+		let array = []
+		if (this.isEmpty()) {
+			return array
+		} else {
+			this.storeInOrder(this.root, array)
+		}
+	}
+
+	storeInOrder(node, array) {
+		// TODO: Test this with complex tree.
+		if (node !== null) {
+			this.storeInOrder(node.leftChild)
+			array.push(node.limitPrice)
+			this.storeInOrder(node.rightChild, array)
+		}
+	}
 }
 
 export default BinarySearchTree
