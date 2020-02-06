@@ -243,7 +243,7 @@ describe('Matching', () => {
 		expect(result.makers[2].sizeRemaining).toBe(0)
 	})
 
-	it('should remove queued order when fully filled', () => {
+	it('should remove maker order when one-to-one complete fill', () => {
 		let orderBook = new LimitOrderBook()
 		let order1 = new LimitOrder('ask', 13.98, 5)
 		let order2 = new LimitOrder('ask', 13.97, 5)
@@ -264,6 +264,39 @@ describe('Matching', () => {
 		)
 		expect(orderBook.asks.getHighestPrice().headOrder).toEqual(
 			order2,
+		)
+	})
+
+	it('should remove maker orders when one-to-many complete fill', () => {
+		let orderBook = new LimitOrderBook()
+		let orderA = new LimitOrder('ask', 14.0, 10)
+		let orderB = new LimitOrder('ask', 13.9, 10)
+		let orderC = new LimitOrder('ask', 13.98, 10)
+		let order1 = new LimitOrder('ask', 13.98, 5)
+		let order2 = new LimitOrder('ask', 13.97, 5)
+		let order3 = new LimitOrder('bid', 13.98, 15)
+		orderBook.add(orderA)
+		orderBook.add(orderB)
+		orderBook.add(orderC)
+		orderBook.add(order1)
+		orderBook.add(order2)
+		let result = orderBook.add(order3)
+		expect(result.taker).toEqual(order3)
+		expect(result.taker.sizeRemaining).toBe(0)
+		expect(result.taker.status).toBe('filled')
+		expect(result.makers.length).toBe(2)
+		expect(result.makers[0]).toEqual(orderC)
+		expect(result.makers[0].sizeRemaining).toBe(0)
+		expect(result.makers[0].status).toBe('filled')
+		expect(result.makers[1]).toEqual(order1)
+		expect(result.makers[1].sizeRemaining).toBe(0)
+		expect(result.makers[1].status).toBe('filled')
+		expect(orderBook.asks.hasLimitOrders()).toBe(true)
+		expect(orderBook.asks.getLowestPrice().headOrder).toEqual(
+			orderB,
+		)
+		expect(orderBook.asks.getHighestPrice().headOrder).toEqual(
+			orderA,
 		)
 	})
 })
