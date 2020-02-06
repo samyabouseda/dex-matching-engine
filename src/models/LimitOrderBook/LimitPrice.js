@@ -10,23 +10,58 @@ class LimitPrice {
 		this.equals = this.equals.bind(this)
 	}
 
+	isRoot() {
+		return this.parent === null
+	}
+
 	remove(order) {
 		if (this.headOrder === order && !this.headOrder.hasNext()) {
-			if (this.hasChildren()) {
-				let lowestLimit = this.rightChild.getLowest()
-				this.replaceBy(lowestLimit)
-			} else if (this.parent.leftChild === this) {
-				this.parent.leftChild = this.hasLeftChild()
-					? this.leftChild
-					: this.rightChild
-			} else if (this.parent.rightChild === this) {
-				this.parent.rightChild = this.hasRightChild()
-					? this.leftChild
-					: this.rightChild
+			if (this.isRoot()) {
+				if (this.hasChildren()) {
+					let lowestLimit = this.rightChild.getLowest()
+					this.replaceBy(lowestLimit)
+					return true
+				} else if (this.hasRightChild()) {
+					let lowestLimit = this.rightChild.getLowest()
+					this.replaceBy(lowestLimit)
+					return true
+				} else if (this.hasLeftChild()) {
+					// this.replaceBy(this.leftChild)
+					this.limitPrice = this.leftChild.limitPrice
+					this.volume = this.leftChild.volume
+					this.headOrder = this.leftChild.headOrder
+					this.leftChild =
+						this.leftChild !== null
+							? this.leftChild.leftChild
+							: null
+					this.rightChild =
+						this.rightChild !== null
+							? this.rightChild.rightChild
+							: null
+					return true
+				}
+				return false
+			} else {
+				if (this.hasChildren()) {
+					let lowestLimit = this.rightChild.getLowest()
+					this.replaceBy(lowestLimit)
+					return true
+				} else if (this.parent.leftChild === this) {
+					this.parent.leftChild = this.hasLeftChild()
+						? this.leftChild
+						: this.rightChild
+					return true
+				} else if (this.parent.rightChild === this) {
+					this.parent.rightChild = this.hasRightChild()
+						? this.leftChild
+						: this.rightChild
+					return true
+				}
+				return true // this is set to null because we remove it and doesn't have children
 			}
-			return false
 		} else {
 			this.headOrder = this.headOrder.remove(order)
+			return true
 		}
 	}
 
@@ -35,6 +70,9 @@ class LimitPrice {
 		this.volume = thatLimit.volume
 		this.headOrder = thatLimit.headOrder
 		this.rightChild = thatLimit.rightChild
+		if (this.leftChild) {
+			thatLimit.leftChild = this.leftChild
+		}
 	}
 
 	getLowest() {

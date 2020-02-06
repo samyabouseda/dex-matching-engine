@@ -242,4 +242,28 @@ describe('Matching', () => {
 		expect(result.makers[1].sizeRemaining).toBe(0)
 		expect(result.makers[2].sizeRemaining).toBe(0)
 	})
+
+	it('should remove queued order when fully filled', () => {
+		let orderBook = new LimitOrderBook()
+		let order1 = new LimitOrder('ask', 13.98, 5)
+		let order2 = new LimitOrder('ask', 13.97, 5)
+		let order3 = new LimitOrder('bid', 13.98, 5)
+		orderBook.add(order1)
+		orderBook.add(order2)
+		let result = orderBook.add(order3)
+		expect(result.taker).toEqual(order3)
+		expect(result.taker.sizeRemaining).toBe(0)
+		expect(result.taker.status).toBe('filled')
+		expect(result.makers.length).toBe(1)
+		expect(result.makers[0]).toEqual(order1)
+		expect(result.makers[0].sizeRemaining).toBe(0)
+		expect(result.makers[0].status).toBe('filled')
+		expect(orderBook.asks.hasLimitOrders()).toBe(true)
+		expect(orderBook.asks.getLowestPrice().headOrder).toEqual(
+			order2,
+		)
+		expect(orderBook.asks.getHighestPrice().headOrder).toEqual(
+			order2,
+		)
+	})
 })
