@@ -25,7 +25,6 @@ describe('OrderBookManager', () => {
 		const instrument = OrderBookManager.getInstrument(
 			INSTRUMENTS.INSTRUMENT_1.address,
 		)
-		console.log(instrument)
 		expect(instrument).toHaveProperty('instrument')
 		expect(instrument.instrument).toHaveProperty('address')
 		expect(instrument.instrument).toHaveProperty('bids')

@@ -1,4 +1,4 @@
-import { LimitOrder } from './index'
+import { LimitOrder, LimitOrderBook } from './index'
 import BinarySearchTree from './BinarySearchTree'
 
 describe('BinarySearchTree', () => {
@@ -87,5 +87,26 @@ describe('BinarySearchTree', () => {
 		expect(bst.root.rightChild.headOrder).toBe(order2)
 		bst.remove(order2)
 		expect(bst.root.rightChild.headOrder).toBe(order7)
+	})
+
+	it('should return the binary search tree as an array', () => {
+		const bst = new BinarySearchTree()
+		let order1 = new LimitOrder('bid', 13.41, 7)
+		let order2 = new LimitOrder('bid', 13.37, 7)
+		let order3 = new LimitOrder('bid', 13.45, 7)
+		let order4 = new LimitOrder('bid', 14.01, 7)
+		let order5 = new LimitOrder('bid', 12.55, 7)
+		bst.add(order1)
+		bst.add(order2)
+		bst.add(order4)
+		bst.add(order5)
+		bst.add(order3)
+		const array = bst.toArray()
+		expect(array.length).toBe(5)
+		expect(array[0].limitPrice).toEqual(12.55)
+		expect(array[1].limitPrice).toEqual(13.37)
+		expect(array[2].limitPrice).toEqual(13.41)
+		expect(array[3].limitPrice).toEqual(13.45)
+		expect(array[4].limitPrice).toEqual(14.01)
 	})
 })

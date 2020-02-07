@@ -89,20 +89,16 @@ class BinarySearchTree {
 	}
 
 	toArray() {
-		let array = []
-		if (this.isEmpty()) {
-			return array
-		} else {
-			this.storeInOrder(this.root, array)
-		}
+		this.array = []
+		this._inOrderTraversal(this.root)
+		return this.array
 	}
 
-	storeInOrder(node, array) {
-		// TODO: Test this with complex tree.
+	_inOrderTraversal(node) {
 		if (node !== null) {
-			this.storeInOrder(node.leftChild)
-			array.push(node.limitPrice)
-			this.storeInOrder(node.rightChild, array)
+			this._inOrderTraversal(node.leftChild)
+			this.array.push(node)
+			this._inOrderTraversal(node.rightChild)
 		}
 	}
 }
