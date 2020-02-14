@@ -42,9 +42,7 @@ const getByAddress = async (req, res) => {
 			instrument,
 		})
 	} catch (error) {
-		return res
-			.status(INTERNAL_SERVER_ERROR)
-			.json({ error: error.message })
+		return res.status(NOT_FOUND).json({ error: error.message })
 	}
 }
 
