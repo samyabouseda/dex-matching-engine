@@ -31,6 +31,17 @@ const initInstrumentDatabase = async () => {
 }
 
 describe('Instruments endpoint', () => {
+	it('should register a new instrument', async done => {
+		const response = await request
+			.post('/instruments')
+			.send(INSTRUMENTS.INSTRUMENT_1)
+		const { status, body } = response
+		expect(status).toEqual(CREATED)
+		expect(body).toHaveProperty('instrument')
+		expect(body.instrument).toHaveProperty('id')
+		done()
+	})
+
 	it('should return all the instruments', async done => {
 		const response = await request.get('/instruments')
 		const { status, body } = response
