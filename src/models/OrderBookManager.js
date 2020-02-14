@@ -38,12 +38,12 @@ class OrderBookManager {
 		return instruments
 	}
 
-	getInstrument(id) {
-		let orderBook = this._orderBooks[id]
+	getInstrument(address) {
+		let orderBook = this._orderBooks[address]
 		if (orderBook) {
 			return {
 				instrument: {
-					address: id,
+					address: address,
 					bids: orderBook.getBidsAsArray(),
 					asks: orderBook.getAsksAsArray(),
 					lowestBid: orderBook.getLowestBidPrice(),

@@ -9,10 +9,19 @@ const request = supertest(app)
 
 const INSTRUMENTS = {
 	INSTRUMENT_1: {
-		address: '0x776a9b10c5fe6045F17B4B0da110672C53608aDd',
+		address: `0x776a9b10c5fe6045F17B4B0da110672C${Math.round(
+			Math.random() * 100000000,
+		)}`,
 	},
 	INSTRUMENT_2: {
-		address: '0x776a9b10c5fe1805317B4B0da110672C53608aDd',
+		address: `0x776a9b10c5fe6045F17B4B0da110672C${Math.round(
+			Math.random() * 100000000,
+		)}`,
+	},
+	INSTRUMENT_3: {
+		address: `0x776a9b10c5fe6045F17B4B0da110672C${Math.round(
+			Math.random() * 100000000,
+		)}`,
 	},
 }
 
@@ -33,12 +42,11 @@ const initInstrumentDatabase = async () => {
 describe('Instruments endpoint', () => {
 	it('should register a new instrument', async done => {
 		const response = await request
-			.post('/instruments')
-			.send(INSTRUMENTS.INSTRUMENT_1)
+			.post('/instruments/')
+			.send({ instrument: INSTRUMENTS.INSTRUMENT_3 })
 		const { status, body } = response
 		expect(status).toEqual(CREATED)
-		expect(body).toHaveProperty('instrument')
-		expect(body.instrument).toHaveProperty('id')
+		expect(body).toHaveProperty('success')
 		done()
 	})
 
@@ -47,7 +55,7 @@ describe('Instruments endpoint', () => {
 		const { status, body } = response
 		expect(status).toEqual(OK)
 		expect(body).toHaveProperty('instruments')
-		expect(body.instruments.length).toBe(2)
+		expect(body.instruments.length).toBe(3)
 		let instrument = body.instruments[0]
 		expect(instrument).toHaveProperty('instrument')
 		expect(instrument).toHaveProperty('lowestBid')

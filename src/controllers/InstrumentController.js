@@ -10,8 +10,7 @@ import OrderBookManager from '../models/OrderBookManager'
 const create = async (req, res) => {
 	try {
 		OrderBookManager.registerNew(req.body.instrument)
-		console.log(req.body.instrument)
-		return res.status(OK).json({
+		return res.status(CREATED).json({
 			success: `Instrument ${req.body.instrument.name} registered successfully!`,
 		})
 	} catch (error) {
@@ -34,10 +33,10 @@ const getAll = async (req, res) => {
 	}
 }
 
-const getById = async (req, res) => {
+const getByAddress = async (req, res) => {
 	try {
 		let instrument = OrderBookManager.getInstrument(
-			req.params.instrumentId,
+			req.params.address,
 		)
 		return res.status(OK).json({
 			instrument,
@@ -52,5 +51,5 @@ const getById = async (req, res) => {
 export default {
 	create,
 	getAll,
-	getById,
+	getByAddress,
 }
