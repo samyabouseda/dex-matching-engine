@@ -17,7 +17,7 @@ class OrderBookManager {
 		let orderBook = this._orderBooks[order.instrument]
 		if (orderBook) {
 			const limitOrder = new LimitOrder(
-				order.size,
+				order.side,
 				order.limitPrice,
 				order.size,
 			)
